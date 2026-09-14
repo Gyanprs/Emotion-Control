@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Remote Control</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #fff0f6 0%, #ffe4e6 100%);
+      --text-main: #4c0519;
+      --card-bg: rgba(255, 255, 255, 0.85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      /* Pink gradient background */
+      background: linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 50%, #f472b6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      color: var(--text-main);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 32px;
+      padding: 36px 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fce7f3; /* Light pink badge */
+      color: #be185d; /* Darker pink text */
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #e11d48; /* Rose red/pink dot */
+      border-radius: 50%;
+      animation: pulse 1.8s infinite;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 10px;
+      color: #831843; /* Deep pink heading */
+    }
+
+    p.subtitle {
+      font-size: 1.05rem;
+      color: #9d174d; /* Medium deep pink */
+      margin-bottom: 30px;
+    }
+
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .remote-btn {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      border: none;
+      border-radius: 20px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .remote-btn:active {
+      transform: scale(0.97);
+    }
+
+    .remote-btn .icon {
+      font-size: 1.6rem;
+      background: rgba(255, 255, 255, 0.4);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+
+    /* Pink Gradient Buttons */
+    .btn-bored {
+      background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+      color: #831843;
+    }
+    .btn-bored:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(251, 207, 232, 0.5); }
+
+    .btn-hungry {
+      background: linear-gradient(135deg, #fbcfe8, #f9a8d4);
+      color: #831843;
+    }
+    .btn-hungry:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(249, 168, 212, 0.5); }
+    
+    .btn-sad {
+      background: linear-gradient(135deg, #f9a8d4, #f472b6);
+      color: #831843;
+    }
+    .btn-sad:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(244, 114, 182, 0.5); }
+
+    .btn-sleepy {
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+      color: #fff;
+    }
+    .btn-sleepy:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(236, 72, 153, 0.5); }
+    
+    /* Kept Spotify green since it's a brand color! */
+    .btn-spotify {
+      background: linear-gradient(135deg, #1DB954, #1ed760);
+      color: #ffffff;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    .btn-spotify:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(29, 185, 84, 0.4); }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(131, 24, 67, 0.45); /* Tinted pink overlay */
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 380px;
+      padding: 26px;
+      border-radius: 24px;
+      text-align: center;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      box-shadow: 0 25px 50px -12px rgba(131, 24, 67, 0.25);
+    }
+
+    .modal-box img {
+      width: 100%;
+      border-radius: 16px;
+      margin-bottom: 14px;
+      max-height: 250px;
+      object-fit: cover;
+    }
+
+    .modal-content {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #831843;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .close-btn {
+      background: #831843; /* Deep pink close button */
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    
+    .close-btn:hover {
+      background: #4c0519;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      Connected 24/7
+    </div>
+
+    <h1>Welcome to Sophie's Mood Control 🎮</h1>
+    <p class="subtitle">How are we feeling right now?</p>
+
+    <div class="buttons-container">
+      <button class="remote-btn btn-bored" onclick="handleBored()">
+        <span class="icon">🥱</span>
+        <span>I'm Bored</span>
+      </button>
+
+      <button class="remote-btn btn-hungry" onclick="handleHungry()">
+        <span class="icon">🍕</span>
+        <span>I'm Hungry</span>
+      </button>
+
+      <button class="remote-btn btn-sad" onclick="handleSad()">
+        <span class="icon">🥺</span>
+        <span>I'm Sad</span>
+      </button>
+
+      <button class="remote-btn btn-sleepy" onclick="handleSleepy()">
+        <span class="icon">😴</span>
+        <span>I'm Sleepy</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <div id="modalBody"></div>
+      <button class="close-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // 1. Bored Items (Filipino Memes)
+    const boredItems = [
+      {
+        type: 'youtube',
+        url: 'https://www.tiktok.com/@kartarmabikaraja_sumput/video/7671325021066906900?is_from_webapp=1&sender_device=pc' 
+      },
+      {
+        type: 'youtube',
+        url: 'https://www.tiktok.com/@serpampics/video/7684628179922799893?is_from_webapp=1&sender_device=pc'
+      },
+      {
+        type: 'youtube',
+        url: 'https://www.tiktok.com/@serpampics/video/7683838822857116948?is_from_webapp=1&sender_device=pc'
+      },
+      {
+        type: 'youtube',
+        url: 'https://www.tiktok.com/@jcsaraza/video/7681871024744336661?is_from_webapp=1&sender_device=pc'
+      },
+      {
+        type: 'image',
+        url: 'https://i.pinimg.com/originals/58/92/b6/5892b61804fb5ef9b530de952a97f5e2.gif', 
+        content: "payag ka angel ka pero pakpak mo pang manok"
+      },
+      {
+        type: 'youtube',
+        url: 'https://apps.apple.com/ph/app/mobile-legends-bang-bang/id1160056295', 
+        content: "tara ML"
+      },
+      {
+        type: 'youtube',
+        url: 'https://www.tiktok.com/@eslarva2/video/7681891911895911688?is_from_webapp=1&sender_device=pc', 
+      }
+    ];
+
+    // 2. Sad/Comforting Items
+    const sadItems = [
+        {
+        type: 'text',
+        content: "you can call me when you need someone to talk to, dongsaeng!"
+      },
+      {
+        type: 'text',
+        content: "I know things are tough right now, but remember that you are strong and capable. 💪"
+      },
+      {
+        type: 'text',
+        content: "Just a reminder that you are incredibly capable, endlessly resilient, and I'm always in your corner cheering you on."
+      }, // <-- COMMA FIXED HERE! 
+      {
+        type: 'image',
+        url: 'https://i.pinimg.com/originals/90/d2/a0/90d2a025b1e962f62b679389011a4f71.gif', // Cute dog image
+        content: "Sending you a biiiig virtual hug! 🫂 Everything will be okay dongsaeng."
+      },
+      {
+        type: 'text',
+        content: "Hey... just a reminder that you are so loved and appreciated. I'm always here for you. 💛 cheer up na dongsaeng!"
+      },
+      {
+        type: 'image',
+        url: 'https://media.giphy.com/media/RK89nc9QK25vkooTB4/giphy.gif', // Cute cat image
+        content: "you look better smiling dongsaeng. ✨"
+      }
+    ];
+
+    const FOOD_LINK = "https://food.grab.com/ph/"; 
+    const SPOTIFY_LINK = "https://open.spotify.com/playlist/37i9dQZF1DWUZ5bk6qqDSy?si=48b45de541c24ac9";
+
+    function handleBored() {
+      const randomIndex = Math.floor(Math.random() * boredItems.length);
+      const item = boredItems[randomIndex];
+      
+      if (item.type === 'youtube') {
+        window.location.href = item.url;
+      } else if (item.type === 'image') {
+        const modalBody = document.getElementById("modalBody");
+        modalBody.innerHTML = `
+          <img src="${item.url}" alt="Meme" />
+          <div class="modal-content">${item.content}</div>
+        `;
+        document.getElementById("modalOverlay").classList.add("active");
+      }
+    }
+
+    function handleHungry() {
+      const confirmed = confirm("G kaba? 💳🍕 Opening GrabFood...");
+      if (confirmed) {
+        window.location.href = FOOD_LINK;
+      }
+    }
+
+    function handleSad() {
+      const randomIndex = Math.floor(Math.random() * sadItems.length);
+      const item = sadItems[randomIndex];
+      
+      const modalBody = document.getElementById("modalBody"); 
+      
+      if (item.type === 'video') {
+        window.location.href = item.url;
+      } else if (item.type === 'image') {
+        modalBody.innerHTML = `
+          <img src="${item.url}" alt="Comfort" />
+          <div class="modal-content">${item.content}</div>
+        `;
+        document.getElementById("modalOverlay").classList.add("active");
+      } else {
+        modalBody.innerHTML = `
+          <div style="font-size: 3.5rem; margin-bottom: 10px;">🫂❤️</div>
+          <div class="modal-content">${item.content}</div>
+        `;
+        document.getElementById("modalOverlay").classList.add("active");
+      }
+    }
+
+    function handleSleepy() {
+      const modalBody = document.getElementById("modalBody");
+      
+      modalBody.innerHTML = `
+        <div style="font-size: 3.5rem; margin-bottom: 10px;">🌙✨</div>
+        <div class="modal-content">
+          Matulog ka na, it's late! <br><br>
+          Sweet dreams! dongsaeng. 💛
+        </div>
+        <button class="remote-btn btn-spotify" onclick="window.location.href='${SPOTIFY_LINK}'">
+          <span class="icon" style="background: rgba(255,255,255,0.25);">🎵</span>
+          <span>Open Spotify Playlist</span>
+        </button>
+      `;
+      document.getElementById("modalOverlay").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("modalOverlay").classList.remove("active");
+    }
+  </script>
+</body>
+</html>
